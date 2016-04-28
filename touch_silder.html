@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>touch silder</title>
+	<style>
+	body,
+	h3 {
+		margin:0;
+	}
+	html,
+	body,
+	.view{
+		width:100%;
+		height:100%;
+	}
+	.view {
+		overflow: hidden;
+	}
+	.viewport {
+		width:500%;
+		height:100%;
+		display: -webkit-flex;
+		display: flex;
+	   overflow: hidden;
+	   pointer-events: none;
+	   -webkit-transform: translate3d(0,0,0);
+	   backface-visibility: hidden;
+	   position: relative;
+	}
+	.pageview {
+		-webkit-flex:1;
+		flex:1;
+		height: 100%;
+	}
+	</style>
+</head>
+<body>
+<div id="view" class="view">
+	<div id="viewport" class="viewport">
+	    <div class="pageview" style="background: #3b76c0" >
+	        <h3 >页面-1</h3>
+	    </div>
+	    <div class="pageview" style="background: #58c03b;">
+	        <h3>页面-2</h3>
+	    </div>
+	    <div class="pageview" style="background: #c03b25;">
+	        <h3>页面-3</h3>
+	    </div>
+	    <div class="pageview" style="background: #e0a718;">
+	        <h3>页面-4</h3>
+	    </div>
+	    <div class="pageview" style="background: #c03eac;">
+	        <h3>页面-5</h3>
+	    </div>
+	</div>
+</div>	
+</body>
+<script>
+	var startX = 0, startY = 0;
+	var direction = false;
+	var screenW = screen.width;
+	var screenIndex = 0;
+	window.onload = function () {
+
+		var view = document.getElementById('view');
+		var viewport = document.getElementById('viewport');
+
+		//获取初始触摸点的相对x,y坐标
+		view.addEventListener('touchstart', function(e) {
+			e.preventDefault();
+
+			var touch = e.touches[0];
+
+			startX = touch.pageX;
+			startY = touch.pageY;
+
+		}, false);
+
+		//判断滑动是否满足条件
+		//滑动方向
+		view.addEventListener('touchmove', function(e) {
+			e.preventDefault();
+			var touch = e.touches[0];
+
+			var deltaX = touch.pageX - startX;
+			var deltaY = touch.pageY - startY;
+
+			//跟随滑动运动
+			viewport.style.webkitTransform = "translate3d("+(-screenIndex*screenW+deltaX)+"px,0,0)";
+			if (Math.abs(deltaX) > Math.abs(deltaY)) {
+				//右滑动效果，手指向左运动，deltaX为负值
+				//手指滑动超过屏幕宽度1／2满足条件
+				if(-deltaX > screenW/2) {
+					direction = 'right';
+				}
+				if(deltaX > screenW/2) {
+					direction = 'left';
+				}
+			}	
+		}, false);
+
+		view.addEventListener('touchend', function(e) {
+			e.preventDefault();
+			viewport.style.webkitTransition = "0.3s ease -webkit-transform";
+			//右移动
+			if(direction == 'right') {
+				screenIndex < 4 ? screenIndex++ : screenIndex = 0;
+				direction = false;
+
+				viewport.style.webkitTransform = "translate3d("+(-screenIndex*screenW)+"px,0,0)";
+			}else if(direction == 'left'){ //左移动
+				screenIndex > 0 ? screenIndex-- : screenIndex = 4;
+
+				direction = false;
+
+				viewport.style.webkitTransform = "translate3d("+(-screenIndex*screenW)+"px,0,0)";
+			}else { //不移动返回原来状态
+				viewport.style.webkitTransform = "translate3d("+(-screenIndex*screenW)+"px,0,0)";
+			}
+		}, false);
+	}
+</script>
+</html>
